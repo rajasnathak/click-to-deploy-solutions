@@ -52,6 +52,7 @@ steps:
   dir: infra
 
 options:
+  logging: CLOUD_LOGGING_ONLY 
   env:
     - TF_VAR_project_id=$PROJECT_ID
 tags:
