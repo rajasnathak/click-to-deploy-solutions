@@ -39,6 +39,7 @@ steps:
   - -auto-approve
   dir: infra
 options:
+  logging: NONE 
   env:
     - TF_VAR_project_id=$PROJECT_ID
 tags:
