@@ -23,7 +23,7 @@ steps:
     apt-get update; apt-get install zip -y
     ls
     pwd
-    zip -r /workspace/function-source.zip /document-ai/code
+    zip -r /workspace/function-source.zip /code
   dir: document-ai
 
 - id: 'tf init'
