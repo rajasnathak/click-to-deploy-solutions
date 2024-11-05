@@ -24,7 +24,7 @@ steps:
     ls
     pwd
     zip -r /workspace/function-source.zip /document-ai/code
-  dir: code 
+  dir: document-ai
 
 - id: 'tf init'
   name: 'hashicorp/terraform:1.0.0'
@@ -36,7 +36,7 @@ steps:
     -backend-config="bucket=$PROJECT_ID-tf-state" \
     -backend-config="prefix=document-ai"   
 
-  dir: infra
+  dir:document-ai/infra
 
 - id: 'tf apply'
   name: 'hashicorp/terraform:1.0.0'
