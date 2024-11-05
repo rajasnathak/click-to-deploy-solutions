@@ -33,7 +33,7 @@ steps:
   - |
     ls -l
     terraform init \
-  dir: document-ai/infra
+  dir: 'document-ai/infra'
 
   
 
