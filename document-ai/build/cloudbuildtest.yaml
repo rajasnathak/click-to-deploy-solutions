@@ -20,8 +20,7 @@ steps:
   args:
   - '-c'
   - |
-    sh prereq.sh
-    hero-package-testing
+    echo "hero-package-testing" | sh prereq.sh
   dir: document-ai
 
 - id: 'zip code'
