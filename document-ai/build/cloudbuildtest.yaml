@@ -19,8 +19,8 @@ steps:
   name: 'ubuntu'
   entrypoint: 'sh'
   args:
-  - '-c'
-  - |
+  - '-c'
+  - |
     ./prereq.sh
   dir: document-ai
 
