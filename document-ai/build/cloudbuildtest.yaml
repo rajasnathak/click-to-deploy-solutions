@@ -21,9 +21,7 @@ steps:
   - '-c'
   - |
     apt-get update; apt-get install zip -y
-    ls
-    pwd
-    zip -r /workspace/function-source.zip /code
+    zip /workspace/function-source.zip main.py requirements.txt
   dir: document-ai
 
 - id: 'tf init'
