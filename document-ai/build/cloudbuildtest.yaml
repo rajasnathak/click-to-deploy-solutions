@@ -41,10 +41,11 @@ steps:
   args:
   - '-c'
   - |
+    cd infra
     terraform init
     -backend-config="bucket=$PROJECT_ID-tf-state" \
     -backend-config="prefix=document-ai"   
-    dir: 'document-ai/infra'
+    dir: document-ai
   
 
 - id: 'tf apply'
