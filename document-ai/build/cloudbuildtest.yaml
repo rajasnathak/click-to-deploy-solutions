@@ -21,9 +21,7 @@ steps:
   - '-c'
   - |
     apt-get update; apt-get install zip -y
-    pwd
-    ls -lR ../  
-    zip -r /workspace/function-source.zip ../code  
+    zip -r /workspace/click-to-deploy-solutions/document-ai/codefunction-source.zip ../click-to-deploy-solutions/document-ai/code  
   dir: code 
 
 - id: 'tf init'
