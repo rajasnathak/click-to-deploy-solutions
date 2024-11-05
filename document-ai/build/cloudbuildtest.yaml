@@ -14,14 +14,6 @@
 # limitations under the License.
 
 steps:
-- id: 'prerequisites'
-  name: 'ubuntu'
-  entrypoint: 'sh'
-  args:
-  - '-c'
-  - |
-    ./prereq.sh
-
 - id: 'zip code'
   name: 'ubuntu'
   entrypoint: 'sh'
