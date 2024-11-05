@@ -36,7 +36,7 @@ steps:
     -backend-config="bucket=$PROJECT_ID-tf-state" \
     -backend-config="prefix=document-ai"   
 
-  dir:document-ai/infra
+  dir: document-ai/infra
 
 - id: 'tf apply'
   name: 'hashicorp/terraform:1.0.0'
