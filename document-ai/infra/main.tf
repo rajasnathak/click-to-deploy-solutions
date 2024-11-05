@@ -21,10 +21,6 @@ resource "google_project_service" "apis" {
  disable_on_destroy = false
 }
 
-# Get the project number
-data "google_project" "project" {
-}
-
 # Cloud Build Service Account
 resource "google_project_iam_member" "cloud_build_editor" {
   project = var.project_id
