@@ -58,11 +58,11 @@ resource "google_project_iam_member" "iam_user" {
 resource "google_project_iam_member" "gcs_to_pubsub" {
   project = var.project_id
   role    = "roles/pubsub.publisher"
-  member  = "serviceAccount:service-${data.google_project.project.number}@gs-project-accounts.iam.gserviceaccount.com"
+  member  = "serviceAccount:service-${var.project_id}@gs-project-accounts.iam.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "event_receiver" {
   project = var.project_id
   role    = "roles/eventarc.eventReceiver"
-  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  member  = "serviceAccount:${var.project_id}-compute@developer.gserviceaccount.com"
 }
