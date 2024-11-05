@@ -24,7 +24,6 @@ steps:
     ./prereq.sh
   dir: document-ai
 
-
 - id: 'zip code'
   name: 'ubuntu'
   entrypoint: 'sh'
