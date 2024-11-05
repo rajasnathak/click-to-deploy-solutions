@@ -31,6 +31,7 @@ steps:
   args:
   - '-c'
   - |
+    ls -l
     terraform init \
   dir: document-ai/infra
 
