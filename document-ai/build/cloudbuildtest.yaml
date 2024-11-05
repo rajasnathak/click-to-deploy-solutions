@@ -32,7 +32,6 @@ steps:
   - '-c'
   - |
     apt-get update; apt-get install zip -y
-    ls -lR
     zip /workspace/function-source.zip code
   dir: document-ai
 
@@ -46,6 +45,7 @@ steps:
     -backend-config="bucket=$PROJECT_ID-tf-state" \
     -backend-config="prefix=document-ai"   
   dir: document-ai/infra
+  
 
 - id: 'tf apply'
   name: 'hashicorp/terraform:1.0.0'
