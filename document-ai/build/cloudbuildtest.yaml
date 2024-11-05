@@ -14,15 +14,6 @@
 # limitations under the License.
 
 steps:
-- id: 'prereq'
-  name: 'ubuntu'
-  entrypoint: 'sh'
-  args:
-  - '-c'
-  - |
-    echo "hero-package-testing" | sh prereq.sh
-  dir: document-ai
-
 - id: 'zip code'
   name: 'ubuntu'
   entrypoint: 'sh'
@@ -41,8 +32,6 @@ steps:
   - '-c'
   - |
     terraform init \
-    -backend-config="bucket=$PROJECT_ID-tf-state" \
-    -backend-config="prefix=document-ai"   
   dir: document-ai/infra
 
   
