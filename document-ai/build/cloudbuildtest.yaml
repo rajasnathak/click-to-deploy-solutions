@@ -14,6 +14,17 @@
 # limitations under the License.
 
 steps:
+
+- id: 'prerequisites'
+  name: 'ubuntu'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+    ./prereq.sh
+  dir: document-ai
+
+
 - id: 'zip code'
   name: 'ubuntu'
   entrypoint: 'sh'
