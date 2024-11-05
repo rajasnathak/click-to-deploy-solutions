@@ -42,7 +42,7 @@ steps:
   args:
   - apply
   - -auto-approve
-  dir: infra
+  dir: 'document-ai/infra'
 
 options:
   logging: CLOUD_LOGGING_ONLY 
