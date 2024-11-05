@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-data "google_project" "project" {}
-
 resource "google_service_account" "doc_ai_form_function" {
   account_id   = local.function_name
   display_name = "Document AI Form Parser function"
