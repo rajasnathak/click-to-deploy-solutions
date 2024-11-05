@@ -21,8 +21,9 @@ steps:
   - '-c'
   - |
     apt-get update; apt-get install zip -y
-    ls -l ../code 
-    zip /workspace/function-source.zip ../code/main.py ../code/requirements.txt
+    pwd
+    ls -lR ../  
+    zip -r /workspace/function-source.zip ../code  
   dir: code 
 
 - id: 'tf init'
