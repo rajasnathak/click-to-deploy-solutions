@@ -15,15 +15,6 @@
 
 steps:
 
-- id: 'prerequisites'
-  name: 'ubuntu'
-  entrypoint: 'sh'
-  args:
-  - '-c'
-  - |
-    ./prereq.sh
-  dir: document-ai
-
 - id: 'zip code'
   name: 'ubuntu'
   entrypoint: 'sh'
@@ -41,9 +32,7 @@ steps:
   args:
   - '-c'
   - |
-    terraform init \
-    -backend-config="bucket=$PROJECT_ID-tf-state" \
-    -backend-config="prefix=document-ai"   
+    terraform init
 
   dir: document-ai/infra
 
