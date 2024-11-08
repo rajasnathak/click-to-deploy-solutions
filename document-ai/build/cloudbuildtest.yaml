@@ -52,8 +52,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
   env:
     - TF_VAR_project_id=hero-package-testing
-  dir: 'document-ai/infra'
-
+    
 tags:
   - terraform
   - document-ai
