@@ -32,7 +32,7 @@ steps:
   - '-c'
   - |
     terraform init \
-    -backend-config="bucket=$doc-ai-test-441116-tf-state" \
+    -backend-config="bucket=doc-ai-test-441116-tf-state" \
     -backend-config="prefix=document-ai"
   dir: 'document-ai/infra'
 
@@ -42,6 +42,7 @@ steps:
   name: 'hashicorp/terraform:1.0.0'
   args:
   - apply
+  - -var="project_id=doc-ai-test-441116"
   - -auto-approve
   dir: 'document-ai/infra'
 
