@@ -31,8 +31,10 @@ steps:
   args:
   - '-c'
   - |
-    ls -l
     terraform init \
+    -backend-config="bucket=$PROJECT_ID-tf-state" \
+    -backend-config="prefix=document-ai"
+    -project-id="doc-ai-test-441116"
   dir: 'document-ai/infra'
 
   
