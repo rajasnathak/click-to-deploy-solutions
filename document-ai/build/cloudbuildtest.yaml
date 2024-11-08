@@ -13,7 +13,42 @@
 # limitations under the License.
 
 steps:
-  - id: 'zip code'
+  - id: 'cloudarmor tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=hero-package-testing-tf-state" \
+          -backend-config="prefix=cloud-armor-demo"
+
+    dir: 'cloud-armor-demo/infra'
+
+  - id: 'cloudarmor tf apply'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - apply
+      - -auto-approve
+    dir: 'cloud-armor-demo/infra'
+
+  - id: 'cloudarmor tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - destroy
+      - -auto-approve
+    dir: 'cloud-armor-demo/infra'
+
+
+
+
+
+
+
+
+
+
+  - id: 'docai zip code'
     name: 'ubuntu'
     entrypoint: 'sh'
     args:
@@ -24,7 +59,7 @@ steps:
         zip -r /workspace/function-source.zip main.py requirements.txt
     dir: 'document-ai/code'
 
-  - id: 'tf init'
+  - id: 'docai tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
     args:
@@ -32,16 +67,17 @@ steps:
       - |
         terraform init \
           -backend-config="bucket=hero-package-testing-tf-state" \
+          -backend-config="prefix=document-ai"
     dir: 'document-ai/infra'
 
-  - id: 'tf apply'
+  - id: 'docai tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args:
       - apply
       - -auto-approve
     dir: 'document-ai/infra'
 
-  - id: 'tf destroy'
+  - id: 'docai tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args:
       - destroy
