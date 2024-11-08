@@ -42,14 +42,14 @@ steps:
   args:
   - apply
   - -auto-approve
-  dir: document-ai/infra
+  dir: 'document-ai/infra'
 
 - id: 'tf destroy'
   name: 'hashicorp/terraform:1.0.0'
   args:
   - destroy
   - -auto-approve
-  dir: document-ai/infra
+  dir: 'document-ai/infra'
 
 
 options:
