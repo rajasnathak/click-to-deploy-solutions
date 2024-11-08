@@ -48,6 +48,21 @@ options:
   logging: CLOUD_LOGGING_ONLY 
   env:
     - TF_VAR_project_id=hero-package-testing
+
+  dir: 'document-ai/infra'
+
+  
+- id: 'tf destroy'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: 'document-ai/infra'
+options:
+  env:
+    - TF_VAR_project_id=hero-package-testing
+
+
 tags:
   - terraform
   - document-ai
