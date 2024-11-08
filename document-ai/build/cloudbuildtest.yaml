@@ -32,7 +32,7 @@ steps:
   - '-c'
   - |
     terraform init \
-    -backend-config="bucket=$PROJECT_ID-tf-state" \
+    -backend-config="bucket=$doc-ai-test-441116-tf-state" \
     -backend-config="prefix=document-ai"
     -project-id="doc-ai-test-441116"
   dir: 'document-ai/infra'
