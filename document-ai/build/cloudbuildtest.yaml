@@ -34,7 +34,6 @@ steps:
     terraform init \
     -backend-config="bucket=$doc-ai-test-441116-tf-state" \
     -backend-config="prefix=document-ai"
-    -project-id="doc-ai-test-441116"
   dir: 'document-ai/infra'
 
   
