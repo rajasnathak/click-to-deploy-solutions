@@ -1,11 +1,10 @@
 # Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.   
-
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     https://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,54 +13,50 @@
 # limitations under the License.
 
 steps:
-- id: 'zip code'
-  name: 'ubuntu'
-  entrypoint: 'sh'
-  args:
-  - '-c'
-  - |
-    apt-get update; apt-get install zip -y
-    ls -lR
-    zip -r /workspace/function-source.zip code
-  dir: document-ai
+  - id: 'zip code'
+    name: 'ubuntu'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        apt-get update; apt-get install zip -y
+        ls -lR
+        zip -r /workspace/function-source.zip code
+    dir: document-ai
 
-- id: 'tf init'
-  name: 'hashicorp/terraform:1.0.0'
-  entrypoint: 'sh'
-  args:
-  - '-c'
-  - |
-    terraform init \
-    -backend-config="bucket=hero-package-testing-tf-state" \
-  dir: 'document-ai/infra'
+  - id: 'tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=hero-package-testing-tf-state" \
+    dir: 'document-ai/infra'
 
-  
+  - id: 'tf apply'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - apply
+      - -auto-approve
+    dir: 'document-ai/infra'
 
-- id: 'tf apply'
-  name: 'hashicorp/terraform:1.0.0'
-  args:
-  - apply
-  - -auto-approve
-  dir: 'document-ai/infra'
-
-- id: 'tf destroy'
-  name: 'hashicorp/terraform:1.0.0'
-  args:
-  - destroy
-  - -auto-approve
-  dir: 'document-ai/infra'
-
+  - id: 'tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - destroy
+      - -auto-approve
+    dir: 'document-ai/infra'
 
 options:
-  logging: CLOUD_LOGGING_ONLY 
+  logging: CLOUD_LOGGING_ONLY
   env:
     - TF_VAR_project_id=hero-package-testing
-
   dir: 'document-ai/infra'
-  
 
 tags:
   - terraform
   - document-ai
   - apply
+
 timeout: 3600s
