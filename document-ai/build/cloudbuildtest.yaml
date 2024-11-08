@@ -32,7 +32,7 @@ steps:
   - '-c'
   - |
     terraform init \
-    -backend-config="bucket=doc-ai-test-441116-tf-state" \
+    -backend-config="bucket=hero-package-testing-tf-state" \
   dir: 'document-ai/infra'
 
   
@@ -47,7 +47,7 @@ steps:
 options:
   logging: CLOUD_LOGGING_ONLY 
   env:
-    - TF_VAR_project_id=doc-ai-test-441116
+    - TF_VAR_project_id=hero-package-testing
 tags:
   - terraform
   - document-ai
