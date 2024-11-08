@@ -41,14 +41,13 @@ steps:
   name: 'hashicorp/terraform:1.0.0'
   args:
   - apply
-  - -var="project_id=doc-ai-test-441116"
   - -auto-approve
   dir: 'document-ai/infra'
 
 options:
   logging: CLOUD_LOGGING_ONLY 
   env:
-    - TF_VAR_project_id=$PROJECT_ID
+    - TF_VAR_project_id=doc-ai-test-441116
 tags:
   - terraform
   - document-ai
