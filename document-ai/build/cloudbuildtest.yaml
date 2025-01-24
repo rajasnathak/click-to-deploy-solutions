@@ -207,7 +207,7 @@ steps:
   - | 
     apt-get update; apt install zip -y
     zip /workspace/function-source.zip main.py requirements.txt
-  dir: code
+  dir: 'data-analytics-platform-event-driven/code'
 
 - id: 'event DA tf init'
   name: 'hashicorp/terraform:1.3.9'
