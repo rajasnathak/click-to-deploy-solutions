@@ -74,7 +74,9 @@ steps:
       - '-auto-approve'
     dir: 'document-ai/infra'
 
-steps:
+
+  
+  
   - id: 'composer tf init'
     name: 'hashicorp/terraform:1.6'
     entrypoint: 'sh'
@@ -123,7 +125,9 @@ steps:
       - '-auto-approve'
     dir: 'cloud-composer-etl/infra'
 
-steps:
+
+
+  
   - id: 'sql-ha tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
@@ -150,7 +154,10 @@ steps:
     dir: 'cloudsql-ha-dr/infra'
 
 
-steps:
+
+
+  
+  
   - id: 'event DA zip code'
     name: 'ubuntu:bionic'
     entrypoint: 'sh'
