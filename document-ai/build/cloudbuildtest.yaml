@@ -74,18 +74,6 @@ steps:
       - '-auto-approve'
     dir: 'document-ai/infra'
 
-options:
-  logging: CLOUD_LOGGING_ONLY
-  env:
-    - TF_VAR_project_id=hero-package-testing
-
-tags:
-  - terraform
-  - document-ai
-  - apply
-
-timeout: 3600s
-
 steps:
   - id: 'composer tf init'
     name: 'hashicorp/terraform:1.6'
@@ -134,19 +122,6 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'cloud-composer-etl/infra'
-  
-options:
-  logging: CLOUD_LOGGING_ONLY
-  env:
-    - TF_VAR_project_id=hero-package-testing
-    - REGION=us-east1
-
-tags:
-  - terraform
-  - cloud-composer-etl
-  - apply
-
-timeout: 3600s
 
 steps:
   - id: 'sql-ha tf init'
@@ -173,17 +148,7 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'cloudsql-ha-dr/infra'
-  
-options:
-  logging: CLOUD_LOGGING_ONLY
-  env:
-    - TF_VAR_project_id=hero-package-testing
-tags:
-  - terraform
-  - cloudsql-ha-dr
-  - apply
 
-timeout: 3600s
 
 steps:
   - id: 'event DA zip code'
@@ -224,8 +189,11 @@ options:
   logging: CLOUD_LOGGING_ONLY
   env:
     - TF_VAR_project_id=hero-package-testing
-    - REGION=southamerica-east1
+    - REGION=us-east1
+
 tags:
   - terraform
-  - data-analytics-platform-event-driven
+  - cloud-composer-etl
   - apply
+
+timeout: 3600s
