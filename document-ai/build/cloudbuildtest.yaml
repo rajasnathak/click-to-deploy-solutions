@@ -47,7 +47,7 @@ steps:
         apt-get update; apt-get install zip -y
         ls -lR
         zip -r /workspace/function-source.zip main.py requirements.txt
-    : 'document-ai/code'
+    dir: 'document-ai/code'
 
   - id: 'docai tf init'
     name: 'hashicorp/terraform:1.0.0'
