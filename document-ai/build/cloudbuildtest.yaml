@@ -144,6 +144,103 @@ steps:
     dir: 'data-analytics-platform-event-driven/infra'
 
 
+    - id: 'Scheduled DA tf init'
+  name: 'hashicorp/terraform:1.3.9'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=scheduled-DA-tf-state" \
+    -backend-config="prefix=data-analytics-platform-scheduled"
+  dir: 'data-analytics-platform-scheduled/infra'
+- id: 'tf apply'
+  name: 'hashicorp/terraform:1.3.9'
+  args: 
+  - apply
+  - -auto-approve
+  dir: 'data-analytics-platform-scheduled/infra'
+
+- id: 'Scheduled DA tf destroy'
+  name: 'hashicorp/terraform:1.3.9'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: 'data-analytics-platform-scheduled/infra'
+
+
+
+
+- id: 'ecommerce-webhosting tf init'
+  name: 'hashicorp/terraform:1.0.0'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=ecommerce-web-hosting-tf-state" \
+    -backend-config="prefix=ecommerce-web-hosting"
+  dir: 'ecommerce-webhosting/infra'
+      
+- id: 'ecommerce-webhosting tf plan'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - plan
+  dir: 'ecommerce-webhosting/infra'
+
+- id: 'ecommerce-webhosting tf apply'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - apply
+  - -auto-approve
+  dir: 'ecommerce-webhosting/infra'
+
+- id: 'ecommerce-webhosting upload images'
+  name: 'gcr.io/cloud-builders/gcloud-slim'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    gsutil rsync -r images gs://ecommerce-$PROJECT_ID/assets/images
+    
+- id: 'ecommerce-webhosting tf destroy'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: 'ecommerce-webhosting/infra'
+
+
+
+
+- id: 'gcs to bq tf init'
+  name: 'hashicorp/terraform:1.4.4'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=gcs-to-bq-with-least-privileges-tf-state" \
+    -backend-config="prefix=gcs-to-bq" \
+    -var-file="terraform.tfvars"
+  dir: 'gcs-to-bq-with-least-privileges/infra'
+
+- id: 'gcs to bq tf apply'
+  name: 'hashicorp/terraform:1.4.4'
+  args: 
+  - apply
+  - -auto-approve
+  dir: 'gcs-to-bq-with-least-privileges/infra'
+
+- id: 'gcs to bq tf destroy'
+  name: 'hashicorp/terraform:1.4.4'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: 'gcs-to-bq-with-least-privileges/infra'
+
+
+  
 
  
   - id: 'composer tf init'
