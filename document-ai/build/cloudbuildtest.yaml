@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     https://www.apache.org/licenses/LICENSE-2.0
+#   https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,31 +22,21 @@ steps:
         terraform init \
           -backend-config="bucket=cloud-armor-backend" \
           -backend-config="prefix=cloud-armor-demo"
-
     dir: 'cloud-armor-demo/infra'
 
   - id: 'cloudarmor tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args:
-      - apply
-      - -auto-approve
+      - 'apply'
+      - '-auto-approve'
     dir: 'cloud-armor-demo/infra'
 
   - id: 'cloudarmor tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args:
-      - destroy
-      - -auto-approve
+      - 'destroy'
+      - '-auto-approve'
     dir: 'cloud-armor-demo/infra'
-
-
-
-
-
-
-
-
-
 
   - id: 'docai zip code'
     name: 'ubuntu'
@@ -57,7 +47,7 @@ steps:
         apt-get update; apt-get install zip -y
         ls -lR
         zip -r /workspace/function-source.zip main.py requirements.txt
-    dir: 'document-ai/code'
+    : 'document-ai/code'
 
   - id: 'docai tf init'
     name: 'hashicorp/terraform:1.0.0'
@@ -73,22 +63,22 @@ steps:
   - id: 'docai tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args:
-      - apply
-      - -auto-approve
+      - 'apply'
+      - '-auto-approve'
     dir: 'document-ai/infra'
 
   - id: 'docai tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args:
-      - destroy
-      - -auto-approve
+      - 'destroy'
+      - '-auto-approve'
     dir: 'document-ai/infra'
 
 options:
   logging: CLOUD_LOGGING_ONLY
   env:
     - TF_VAR_project_id=hero-package-testing
-    
+
 tags:
   - terraform
   - document-ai
@@ -96,57 +86,57 @@ tags:
 
 timeout: 3600s
 
-
-
 steps:
-- id: 'composer tf init'
-  name: 'hashicorp/terraform:1.6'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    terraform init \
-    -backend-config="bucket=cloud-composer-tf-state" \
-    -backend-config="prefix=cloud-composer"
-  dir: 'cloud-composer-etl/infra'
-- id: 'composer tf apply'
-  name: 'hashicorp/terraform:1.6'
-  args: 
-  - apply
-  - -auto-approve
-  dir: infra
-- id: 'upload dataset'
-  name: 'gcr.io/cloud-builders/gcloud-slim'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    gunzip citibike.sql.gz
-    gsutil cp citibike.sql gs://$PROJECT_ID-sql-backup
-    export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:cloud-composer-etl')
-    export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
-    gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sql-backup
-  dir: 'cloud-composer-etl/sql'
-- id: 'upload dags'
-  name: 'gcr.io/cloud-builders/gcloud-slim'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    export COMPOSER_BUCKET=$(gcloud composer environments describe composer-af2 --location $$REGION --format='value(config.dagGcsPrefix)')
-    gsutil cp * $$COMPOSER_BUCKET
-  dir: dags
+  - id: 'composer tf init'
+    name: 'hashicorp/terraform:1.6'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=cloud-composer-tf-state" \
+          -backend-config="prefix=cloud-composer"
+    dir: 'cloud-composer-etl/infra'
+
+  - id: 'composer tf apply'
+    name: 'hashicorp/terraform:1.6'
+    args:
+      - 'apply'
+      - '-auto-approve'
+    dir: 'cloud-composer-etl/infra'
+
+  - id: 'upload dataset'
+    name: 'gcr.io/cloud-builders/gcloud-slim'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        gunzip citibike.sql.gz
+        gsutil cp citibike.sql gs://$PROJECT_ID-sql-backup
+        export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:cloud-composer-etl')
+        export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
+        gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sql-backup
+    dir: 'cloud-composer-etl/sql'
+
+  - id: 'upload dags'
+    name: 'gcr.io/cloud-builders/gcloud-slim'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        export COMPOSER_BUCKET=$(gcloud composer environments describe composer-af2 --location $$REGION --format='value(config.dagGcsPrefix)')
+        gsutil cp * $$COMPOSER_BUCKET
+    dir: 'cloud-composer-etl/dags'
   
-- id: 'composer tf destroy'
-  name: 'hashicorp/terraform:1.6'
-  args: 
-  - destroy
-  - -auto-approve
-  dir: 'cloud-composer-etl/infra'
+  - id: 'composer tf destroy'
+    name: 'hashicorp/terraform:1.6'
+    args:
+      - 'destroy'
+      - '-auto-approve'
+    dir: 'cloud-composer-etl/infra'
   
 options:
   logging: CLOUD_LOGGING_ONLY
-
   env:
     - TF_VAR_project_id=hero-package-testing
     - REGION=us-east1
@@ -158,36 +148,34 @@ tags:
 
 timeout: 3600s
 
-
-
 steps:
-- id: 'sql-ha tf init'
-  name: 'hashicorp/terraform:1.0.0'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    terraform init \
-    -backend-config="bucket=cloudsql-ha-dr-tf-state" \
-    -backend-config="prefix=cloudsql-ha-dr"
-  dir: 'cloudsql-ha-dr/infra'
-- id: 'sql-ha tf apply'
-  name: 'hashicorp/terraform:1.0.0'
-  args: 
-  - apply
-  - -auto-approve
-  dir: 'cloudsql-ha-dr/infra'
+  - id: 'sql-ha tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=cloudsql-ha-dr-tf-state" \
+          -backend-config="prefix=cloudsql-ha-dr"
+    dir: 'cloudsql-ha-dr/infra'
 
-- id: 'sql-ha tf destroy'
-  name: 'hashicorp/terraform:1.0.0'
-  args: 
-  - destroy
-  - -auto-approve
-  dir: 'cloudsql-ha-dr/infra'
+  - id: 'sql-ha tf apply'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - 'apply'
+      - '-auto-approve'
+    dir: 'cloudsql-ha-dr/infra'
+
+  - id: 'sql-ha tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - 'destroy'
+      - '-auto-approve'
+    dir: 'cloudsql-ha-dr/infra'
   
 options:
   logging: CLOUD_LOGGING_ONLY
-
   env:
     - TF_VAR_project_id=hero-package-testing
 tags:
@@ -197,43 +185,43 @@ tags:
 
 timeout: 3600s
 
-
 steps:
-- id: 'event DA zip code'
-  name: 'ubuntu:bionic'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    apt-get update; apt install zip -y
-    zip /workspace/function-source.zip main.py requirements.txt
-  dir: 'data-analytics-platform-event-driven/code'
+  - id: 'event DA zip code'
+    name: 'ubuntu:bionic'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        apt-get update; apt install zip -y
+        zip /workspace/function-source.zip main.py requirements.txt
+    dir: 'data-analytics-platform-event-driven/code'
 
-- id: 'event DA tf init'
-  name: 'hashicorp/terraform:1.3.9'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    terraform init \
-    -backend-config="bucket=data-analytics-platform-event-driven-tf-state" \
-    -backend-config="prefix=data-analytics-platform-event-driven"
-  dir: 'data-analytics-platform-event-driven/infra'
-- id: 'event DA tf apply'
-  name: 'hashicorp/terraform:1.3.9'
-  args: 
-  - apply
-  - -auto-approve
+  - id: 'event DA tf init'
+    name: 'hashicorp/terraform:1.3.9'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=data-analytics-platform-event-driven-tf-state" \
+          -backend-config="prefix=data-analytics-platform-event-driven"
+    dir: 'data-analytics-platform-event-driven/infra'
+
+  - id: 'event DA tf apply'
+    name: 'hashicorp/terraform:1.3.9'
+    args:
+      - 'apply'
+      - '-auto-approve'
+    dir: 'data-analytics-platform-event-driven/infra'
   - id: 'event DA tf destroy'
-  name: 'hashicorp/terraform:1.3.9'
-  args: 
-  - destroy
-  - -auto-approve
-  
-  dir: 'data-analytics-platform-event-driven/infra'
+    name: 'hashicorp/terraform:1.3.9'
+    args:
+      - 'destroy'
+      - '-auto-approve'
+    dir: 'data-analytics-platform-event-driven/infra'
+
 options:
   logging: CLOUD_LOGGING_ONLY
-
   env:
     - TF_VAR_project_id=hero-package-testing
     - REGION=southamerica-east1
