@@ -76,55 +76,6 @@ steps:
 
 
   
-  
-  - id: 'composer tf init'
-    name: 'hashicorp/terraform:1.6'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        terraform init \
-          -backend-config="bucket=cloud-composer-tf-state" \
-          -backend-config="prefix=cloud-composer"
-    dir: 'cloud-composer-etl/infra'
-
-  - id: 'composer tf apply'
-    name: 'hashicorp/terraform:1.6'
-    args:
-      - 'apply'
-      - '-auto-approve'
-    dir: 'cloud-composer-etl/infra'
-
-  - id: 'upload dataset'
-    name: 'gcr.io/cloud-builders/gcloud-slim'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        gunzip citibike.sql.gz
-        gsutil cp citibike.sql gs://$PROJECT_ID-sql-backup
-        export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:cloud-composer-etl')
-        export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
-        gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sql-backup
-    dir: 'cloud-composer-etl/sql'
-
-  - id: 'upload dags'
-    name: 'gcr.io/cloud-builders/gcloud-slim'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        export COMPOSER_BUCKET=$(gcloud composer environments describe composer-af2 --location $$REGION --format='value(config.dagGcsPrefix)')
-        gsutil cp * $$COMPOSER_BUCKET
-    dir: 'cloud-composer-etl/dags'
-  
-  - id: 'composer tf destroy'
-    name: 'hashicorp/terraform:1.6'
-    args:
-      - 'destroy'
-      - '-auto-approve'
-    dir: 'cloud-composer-etl/infra'
-
 
 
   
@@ -191,6 +142,59 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'data-analytics-platform-event-driven/infra'
+
+
+
+ 
+  - id: 'composer tf init'
+    name: 'hashicorp/terraform:1.6'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=cloud-composer-tf-state" \
+          -backend-config="prefix=cloud-composer"
+    dir: 'cloud-composer-etl/infra'
+
+  - id: 'composer tf apply'
+    name: 'hashicorp/terraform:1.6'
+    args:
+      - 'apply'
+      - '-auto-approve'
+    dir: 'cloud-composer-etl/infra'
+
+  - id: 'upload dataset'
+    name: 'gcr.io/cloud-builders/gcloud-slim'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        gunzip citibike.sql.gz
+        gsutil cp citibike.sql gs://$PROJECT_ID-sql-backup
+        export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:cloud-composer-etl')
+        export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
+        gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sql-backup
+    dir: 'cloud-composer-etl/sql'
+
+  - id: 'upload dags'
+    name: 'gcr.io/cloud-builders/gcloud-slim'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        export COMPOSER_BUCKET=$(gcloud composer environments describe composer-af2 --location $$REGION --format='value(config.dagGcsPrefix)')
+        gsutil cp * $$COMPOSER_BUCKET
+    dir: 'cloud-composer-etl/dags'
+  
+  - id: 'composer tf destroy'
+    name: 'hashicorp/terraform:1.6'
+    args:
+      - 'destroy'
+      - '-auto-approve'
+    dir: 'cloud-composer-etl/infra'
+
+
 
 options:
   logging: CLOUD_LOGGING_ONLY
