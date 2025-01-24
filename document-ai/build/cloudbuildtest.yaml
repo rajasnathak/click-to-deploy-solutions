@@ -108,7 +108,7 @@ steps:
     terraform init \
     -backend-config="bucket=cloud-composer-tf-state" \
     -backend-config="prefix=cloud-composer"
-  dir: infra
+  dir: 'cloud-composer-etl/infra'
 - id: 'composer tf apply'
   name: 'hashicorp/terraform:1.6'
   args: 
@@ -126,7 +126,7 @@ steps:
     export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:cloud-composer-etl')
     export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
     gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sql-backup
-  dir: sql
+  dir: 'cloud-composer-etl/sql'
 - id: 'upload dags'
   name: 'gcr.io/cloud-builders/gcloud-slim'
   entrypoint: 'sh'
@@ -142,7 +142,7 @@ steps:
   args: 
   - destroy
   - -auto-approve
-  dir: infra
+  dir: 'cloud-composer-etl/infra'
   
 options:
   logging: CLOUD_LOGGING_ONLY
@@ -170,20 +170,20 @@ steps:
     terraform init \
     -backend-config="bucket=cloudsql-ha-dr-tf-state" \
     -backend-config="prefix=cloudsql-ha-dr"
-  dir: infra
+  dir: 'cloudsql-ha-dr/infra'
 - id: 'sql-ha tf apply'
   name: 'hashicorp/terraform:1.0.0'
   args: 
   - apply
   - -auto-approve
-  dir: infra
+  dir: 'cloudsql-ha-dr/infra'
 
 - id: 'sql-ha tf destroy'
   name: 'hashicorp/terraform:1.0.0'
   args: 
   - destroy
   - -auto-approve
-  dir: infra
+  dir: 'cloudsql-ha-dr/infra'
   
 options:
   logging: CLOUD_LOGGING_ONLY
@@ -218,12 +218,13 @@ steps:
     terraform init \
     -backend-config="bucket=data-analytics-platform-event-driven-tf-state" \
     -backend-config="prefix=data-analytics-platform-event-driven"
-  dir: infra
+  dir: 'data-analytics-platform-event-driven/infra'
 - id: 'event DA tf apply'
   name: 'hashicorp/terraform:1.3.9'
   args: 
   - apply
   - -auto-approve
+  dir: 'data-analytics-platform-event-driven/infra'
 
   - id: 'event DA tf destroy'
   name: 'hashicorp/terraform:1.3.9'
@@ -231,7 +232,7 @@ steps:
   - destroy
   - -auto-approve
   
-  dir: infra
+  dir: 'data-analytics-platform-event-driven/infra'
 options:
   logging: CLOUD_LOGGING_ONLY
 
