@@ -145,6 +145,8 @@ steps:
   dir: infra
   
 options:
+  logging: CLOUD_LOGGING_ONLY
+
   env:
     - TF_VAR_project_id=hero-package-testing
     - REGION=us-east1
@@ -184,6 +186,8 @@ steps:
   dir: infra
   
 options:
+  logging: CLOUD_LOGGING_ONLY
+
   env:
     - TF_VAR_project_id=hero-package-testing
 tags:
@@ -229,6 +233,8 @@ steps:
   
   dir: infra
 options:
+  logging: CLOUD_LOGGING_ONLY
+
   env:
     - TF_VAR_project_id=hero-package-testing
     - REGION=southamerica-east1
