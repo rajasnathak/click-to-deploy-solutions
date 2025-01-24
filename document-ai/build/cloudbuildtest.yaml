@@ -106,7 +106,7 @@ steps:
   - '-c'
   - | 
     terraform init \
-    -backend-config="bucket=$PROJECT_ID-tf-state" \
+    -backend-config="bucket=cloud-composer-tf-state" \
     -backend-config="prefix=cloud-composer"
   dir: infra
 - id: 'composer tf apply'
@@ -146,7 +146,7 @@ steps:
   
 options:
   env:
-    - TF_VAR_project_id=$PROJECT_ID
+    - TF_VAR_project_id=hero-package-testing
     - REGION=us-east1
 
 tags:
@@ -166,7 +166,7 @@ steps:
   - '-c'
   - | 
     terraform init \
-    -backend-config="bucket=$PROJECT_ID-tf-state" \
+    -backend-config="bucket=cloudsql-ha-dr-tf-state" \
     -backend-config="prefix=cloudsql-ha-dr"
   dir: infra
 - id: 'sql-ha tf apply'
@@ -185,7 +185,7 @@ steps:
   
 options:
   env:
-    - TF_VAR_project_id=$PROJECT_ID
+    - TF_VAR_project_id=hero-package-testing
 tags:
   - terraform
   - cloudsql-ha-dr
@@ -212,7 +212,7 @@ steps:
   - '-c'
   - | 
     terraform init \
-    -backend-config="bucket=$PROJECT_ID-tf-state" \
+    -backend-config="bucket=data-analytics-platform-event-driven-tf-state" \
     -backend-config="prefix=data-analytics-platform-event-driven"
   dir: infra
 - id: 'event DA tf apply'
@@ -230,7 +230,7 @@ steps:
   dir: infra
 options:
   env:
-    - TF_VAR_project_id=$PROJECT_ID
+    - TF_VAR_project_id=hero-package-testing
     - REGION=southamerica-east1
 tags:
   - terraform
