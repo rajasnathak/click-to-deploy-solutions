@@ -95,3 +95,144 @@ tags:
   - apply
 
 timeout: 3600s
+
+
+
+steps:
+- id: 'composer tf init'
+  name: 'hashicorp/terraform:1.6'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=$PROJECT_ID-tf-state" \
+    -backend-config="prefix=cloud-composer"
+  dir: infra
+- id: 'composer tf apply'
+  name: 'hashicorp/terraform:1.6'
+  args: 
+  - apply
+  - -auto-approve
+  dir: infra
+- id: 'upload dataset'
+  name: 'gcr.io/cloud-builders/gcloud-slim'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    gunzip citibike.sql.gz
+    gsutil cp citibike.sql gs://$PROJECT_ID-sql-backup
+    export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:cloud-composer-etl')
+    export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
+    gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sql-backup
+  dir: sql
+- id: 'upload dags'
+  name: 'gcr.io/cloud-builders/gcloud-slim'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    export COMPOSER_BUCKET=$(gcloud composer environments describe composer-af2 --location $$REGION --format='value(config.dagGcsPrefix)')
+    gsutil cp * $$COMPOSER_BUCKET
+  dir: dags
+  
+- id: 'composer tf destroy'
+  name: 'hashicorp/terraform:1.6'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: infra
+  
+options:
+  env:
+    - TF_VAR_project_id=$PROJECT_ID
+    - REGION=us-east1
+
+tags:
+  - terraform
+  - cloud-composer-etl
+  - apply
+
+timeout: 3600s
+
+
+
+steps:
+- id: 'sql-ha tf init'
+  name: 'hashicorp/terraform:1.0.0'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=$PROJECT_ID-tf-state" \
+    -backend-config="prefix=cloudsql-ha-dr"
+  dir: infra
+- id: 'sql-ha tf apply'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - apply
+  - -auto-approve
+  dir: infra
+
+- id: 'sql-ha tf destroy'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: infra
+  
+options:
+  env:
+    - TF_VAR_project_id=$PROJECT_ID
+tags:
+  - terraform
+  - cloudsql-ha-dr
+  - apply
+
+timeout: 3600s
+
+
+steps:
+- id: 'event DA zip code'
+  name: 'ubuntu:bionic'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    apt-get update; apt install zip -y
+    zip /workspace/function-source.zip main.py requirements.txt
+  dir: code
+
+- id: 'event DA tf init'
+  name: 'hashicorp/terraform:1.3.9'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=$PROJECT_ID-tf-state" \
+    -backend-config="prefix=data-analytics-platform-event-driven"
+  dir: infra
+- id: 'event DA tf apply'
+  name: 'hashicorp/terraform:1.3.9'
+  args: 
+  - apply
+  - -auto-approve
+
+  - id: 'event DA tf destroy'
+  name: 'hashicorp/terraform:1.3.9'
+  args: 
+  - destroy
+  - -auto-approve
+  
+  dir: infra
+options:
+  env:
+    - TF_VAR_project_id=$PROJECT_ID
+    - REGION=southamerica-east1
+tags:
+  - terraform
+  - data-analytics-platform-event-driven
+  - apply
