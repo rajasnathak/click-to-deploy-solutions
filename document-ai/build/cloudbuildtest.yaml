@@ -141,7 +141,7 @@ steps:
       - '-c'
       - |
         terraform init \
-          -backend-config="bucket=scheduled-DA-tf-state" \
+          -backend-config="bucket=scheduled-da-tf-state" \
           -backend-config="prefix=data-analytics-platform-scheduled"
     dir: 'data-analytics-platform-scheduled/infra'
 
