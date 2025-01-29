@@ -276,6 +276,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
   env:
     - TF_VAR_project_id=hero-package-testing
+    - TF_VAR_project_number=397827630971
     - REGION=us-east1
 
 tags:
