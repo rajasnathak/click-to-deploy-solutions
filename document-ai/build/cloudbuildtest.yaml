@@ -13,7 +13,47 @@
 # limitations under the License.
 
 steps:
-  - id: 'cloudarmor tf init'
+  
+  - id: 'ecommerce-webhosting tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=ecommerce-web-hosting-tf-state" \
+          -backend-config="prefix=ecommerce-web-hosting"
+    dir: 'ecommerce-webhosting/infra'
+  
+  - id: 'ecommerce-webhosting tf plan'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - 'plan'
+    dir: 'ecommerce-webhosting/infra'
+
+  - id: 'ecommerce-webhosting tf apply'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - 'apply'
+      - '-auto-approve'
+    dir: 'ecommerce-webhosting/infra'
+
+  - id: 'ecommerce-webhosting upload images'
+    name: 'gcr.io/cloud-builders/gcloud-slim'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        gsutil rsync -r images gs://ecommerce-$PROJECT_ID/assets/images'
+  
+  - id: 'ecommerce-webhosting tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - 'destroy'
+      - '-auto-approve'
+    dir: 'ecommerce-webhosting/infra'
+
+    - id: 'cloudarmor tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
     args:
@@ -159,44 +199,6 @@ steps:
       - '-auto-approve'
     dir: 'data-analytics-platform-scheduled/infra'
   
-  - id: 'ecommerce-webhosting tf init'
-    name: 'hashicorp/terraform:1.0.0'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        terraform init \
-          -backend-config="bucket=ecommerce-web-hosting-tf-state" \
-          -backend-config="prefix=ecommerce-web-hosting"
-    dir: 'ecommerce-webhosting/infra'
-  
-  - id: 'ecommerce-webhosting tf plan'
-    name: 'hashicorp/terraform:1.0.0'
-    args:
-      - 'plan'
-    dir: 'ecommerce-webhosting/infra'
-
-  - id: 'ecommerce-webhosting tf apply'
-    name: 'hashicorp/terraform:1.0.0'
-    args:
-      - 'apply'
-      - '-auto-approve'
-    dir: 'ecommerce-webhosting/infra'
-
-  - id: 'ecommerce-webhosting upload images'
-    name: 'gcr.io/cloud-builders/gcloud-slim'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        gsutil rsync -r images gs://ecommerce-$PROJECT_ID/assets/images'
-  
-  - id: 'ecommerce-webhosting tf destroy'
-    name: 'hashicorp/terraform:1.0.0'
-    args:
-      - 'destroy'
-      - '-auto-approve'
-    dir: 'ecommerce-webhosting/infra'
 
   - id: 'gcs to bq tf init'
     name: 'hashicorp/terraform:1.4.4'
