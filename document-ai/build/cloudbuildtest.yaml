@@ -13,59 +13,59 @@
 # limitations under the License.
 
 steps:
-- id: 'GKE autopilot hpa tf init'
-  name: 'hashicorp/terraform:1.0.0'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    terraform init \
-    -backend-config="bucket=gke-autopilot-hpa-tf-state" \
-    -backend-config="prefix=gke-autopilot-hpa"
-  dir: infra
-- id: 'GKE autopilot hpa tf apply'
-  name: 'hashicorp/terraform:1.0.0'
-  args: 
-  - apply
-  - -auto-approve
-  dir: gke-autopilot-hpa/infra
-- id: k8s create namespaces
-  name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '-f', 'namespaces.yaml']
-  dir: gke-autopilot-hpa/build
-- id: k8s deploy hello-app-example
-  name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '-f', 'hello-app-example.yaml', '-n', 'hello-app-example']
-  dir: gke-autopilot-hpa/build
-- id: k8s deploy hpa-example
-  name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '-f', 'hpa-example.yaml', '-n', 'hpa-example']
-  dir: gke-autopilot-hpa/build
+  - id: 'GKE autopilot hpa tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      terraform init \
+      -backend-config="bucket=gke-autopilot-hpa-tf-state" \
+      -backend-config="prefix=gke-autopilot-hpa"
+    dir: infra
+  - id: 'GKE autopilot hpa tf apply'
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - apply
+    - -auto-approve
+    dir: gke-autopilot-hpa/infra
+  - id: k8s create namespaces
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'namespaces.yaml']
+    dir: gke-autopilot-hpa/build
+  - id: k8s deploy hello-app-example
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'hello-app-example.yaml', '-n', 'hello-app-example']
+    dir: gke-autopilot-hpa/build
+  - id: k8s deploy hpa-example
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'hpa-example.yaml', '-n', 'hpa-example']
+    dir: gke-autopilot-hpa/build
 
-- id: k8s delete hello-app-example
-  name: 'gcr.io/cloud-builders/kubectl'
-  args: ['delete', '-f', 'hello-app-example.yaml', '-n', 'hello-app-example']
-  dir: gke-autopilot-hpa/build
-- id: k8s delete hpa-example
-  name: 'gcr.io/cloud-builders/kubectl'
-  args: ['delete', '-f', 'hpa-example.yaml', '-n', 'hpa-example']
-  dir: gke-autopilot-hpa/build
-- id: 'tf init'
-  name: 'hashicorp/terraform:1.0.0'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    terraform init \
-    -backend-config="bucket=$PROJECT_ID-tf-state" \
-    -backend-config="prefix=gke-autopilot-hpa"
-  dir: gke-autopilot-hpa/infra
-- id: 'tf destroy'
-  name: 'hashicorp/terraform:1.0.0'
-  args: 
-  - destroy
-  - -auto-approve
-  dir: gke-autopilot-hpa/infra
+  - id: k8s delete hello-app-example
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['delete', '-f', 'hello-app-example.yaml', '-n', 'hello-app-example']
+    dir: gke-autopilot-hpa/build
+  - id: k8s delete hpa-example
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['delete', '-f', 'hpa-example.yaml', '-n', 'hpa-example']
+    dir: gke-autopilot-hpa/build
+  - id: 'tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      terraform init \
+      -backend-config="bucket=$PROJECT_ID-tf-state" \
+      -backend-config="prefix=gke-autopilot-hpa"
+    dir: gke-autopilot-hpa/infra
+  - id: 'tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - destroy
+    - -auto-approve
+    dir: gke-autopilot-hpa/infra
 
   - id: 'ecommerce-webhosting tf init'
     name: 'hashicorp/terraform:1.0.0'
@@ -78,12 +78,6 @@ steps:
           -backend-config="prefix=ecommerce-web-hosting"
     dir: 'ecommerce-webhosting/infra'
   
-  - id: 'ecommerce-webhosting tf plan'
-    name: 'hashicorp/terraform:1.0.0'
-    args:
-      - 'plan'
-    dir: 'ecommerce-webhosting/infra'
-
   - id: 'ecommerce-webhosting tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args:
