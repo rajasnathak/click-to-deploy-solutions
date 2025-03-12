@@ -50,16 +50,6 @@ steps:
     name: 'gcr.io/cloud-builders/kubectl'
     args: ['delete', '-f', 'hpa-example.yaml', '-n', 'hpa-example']
     dir: gke-autopilot-hpa/build
-  - id: 'tf init'
-    name: 'hashicorp/terraform:1.0.0'
-    entrypoint: 'sh'
-    args: 
-      - '-c'
-      - | 
-        terraform init \
-        -backend-config="bucket=$PROJECT_ID-tf-state" \
-        -backend-config="prefix=gke-autopilot-hpa"
-    dir: gke-autopilot-hpa/infra
   - id: 'tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args: 
