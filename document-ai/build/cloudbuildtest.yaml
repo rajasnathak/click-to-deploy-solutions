@@ -22,7 +22,7 @@ steps:
       terraform init \
       -backend-config="bucket=gke-autopilot-hpa-tf-state" \
       -backend-config="prefix=gke-autopilot-hpa"
-    dir: infra
+    dir: gke-autopilot-hpa/infra
   - id: 'GKE autopilot hpa tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args: 
