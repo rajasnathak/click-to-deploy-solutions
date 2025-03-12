@@ -44,7 +44,7 @@ steps:
     args:
       - '-c'
       - |
-        gsutil rsync -r images gs://ecommerce-$PROJECT_ID/assets/images
+        gsutil rsync -r images gs://ecommerce-hero-package-testing/assets/images
   
   - id: 'ecommerce-webhosting tf destroy'
     name: 'hashicorp/terraform:1.0.0'
