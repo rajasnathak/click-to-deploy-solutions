@@ -26,8 +26,8 @@ steps:
   - id: 'GKE autopilot hpa tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args: 
-    - apply
-    - -auto-approve
+      - apply
+      - -auto-approve
     dir: gke-autopilot-hpa/infra
   - id: k8s create namespaces
     name: 'gcr.io/cloud-builders/kubectl'
@@ -54,17 +54,17 @@ steps:
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
     args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=$PROJECT_ID-tf-state" \
-      -backend-config="prefix=gke-autopilot-hpa"
+      - '-c'
+      - | 
+        terraform init \
+        -backend-config="bucket=$PROJECT_ID-tf-state" \
+        -backend-config="prefix=gke-autopilot-hpa"
     dir: gke-autopilot-hpa/infra
   - id: 'tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args: 
-    - destroy
-    - -auto-approve
+      - destroy
+      - -auto-approve
     dir: gke-autopilot-hpa/infra
 
   - id: 'ecommerce-webhosting tf init'
