@@ -13,39 +13,38 @@
 # limitations under the License.
 
 steps:
-
-- id: 'zip code'
-  name: 'ubuntu'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    apt-get update; apt-get install zip -y
-    zip /workspace/function-source.zip main.py requirements.txt
-  dir: nlp-sentiment-analysis/code
+  - id: 'zip code'
+    name: 'ubuntu'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      apt-get update; apt-get install zip -y
+      zip /workspace/function-source.zip main.py requirements.txt
+    dir: nlp-sentiment-analysis/code
   - id: 'tf init'
-  name: 'hashicorp/terraform:1.0.0'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - | 
-    terraform init \
-    -backend-config="bucket=nlp-sentiment-analysis-tf-state" \
-    -backend-config="prefix=document-ai"
-  dir: nlp-sentiment-analysis/infra   
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      terraform init \
+      -backend-config="bucket=nlp-sentiment-analysis-tf-state" \
+      -backend-config="prefix=document-ai"
+    dir: nlp-sentiment-analysis/infra   
   - id: 'tf apply'
-  name: 'hashicorp/terraform:1.0.0'
-  args: 
-  - apply
-  - -auto-approve
-  dir: nlp-sentiment-analysis/infra
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - apply
+    - -auto-approve
+    dir: nlp-sentiment-analysis/infra
 
   - id: 'tf destroy'
-  name: 'hashicorp/terraform:1.0.0'
-  args: 
-  - destroy
-  - -auto-approve
-  dir: nlp-sentiment-analysis/infra
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - destroy
+    - -auto-approve
+    dir: nlp-sentiment-analysis/infra
   
   - id: 'GKE autopilot hpa tf init'
     name: 'hashicorp/terraform:1.0.0'
