@@ -38,7 +38,7 @@ steps:
     - apply
     - -auto-approve
     dir: object-localization/terraform
-  - id: 'object-localization tf apply'
+  - id: 'object-localization tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args: 
     - destroy
