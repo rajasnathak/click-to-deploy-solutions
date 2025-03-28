@@ -29,7 +29,7 @@ steps:
     - '-c'
     - | 
       terraform init \
-      -backend-config="bucket=$PROJECT_ID-tf-state" \
+      -backend-config="bucket=object-localization-tf-state" \
       -backend-config="prefix=object-localization"
     dir: object-localization/terraform   
   - id: 'object-localization tf apply'
