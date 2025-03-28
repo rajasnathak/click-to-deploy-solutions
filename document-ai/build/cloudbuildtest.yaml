@@ -13,7 +13,8 @@
 # limitations under the License.
 
 steps:
-  - id: 'zip code'
+
+- id: 'zip code'
   name: 'ubuntu'
   entrypoint: 'sh'
   args: 
