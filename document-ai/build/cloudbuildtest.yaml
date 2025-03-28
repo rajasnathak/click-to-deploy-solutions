@@ -13,7 +13,7 @@
 # limitations under the License.
 
 steps:
-  - id: 'zip code'
+  - id: 'nlp zip code'
     name: 'ubuntu'
     entrypoint: 'sh'
     args: 
@@ -22,7 +22,7 @@ steps:
       apt-get update; apt-get install zip -y
       zip /workspace/function-source.zip main.py requirements.txt
     dir: nlp-sentiment-analysis/code
-  - id: 'tf init'
+  - id: 'nlp tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
     args: 
@@ -32,14 +32,14 @@ steps:
       -backend-config="bucket=nlp-sentiment-analysis-tf-state" \
       -backend-config="prefix=document-ai"
     dir: nlp-sentiment-analysis/infra   
-  - id: 'tf apply'
+  - id: 'nlp tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args: 
     - apply
     - -auto-approve
     dir: nlp-sentiment-analysis/infra
 
-  - id: 'tf destroy'
+  - id: 'nlp tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args: 
     - destroy
