@@ -54,7 +54,7 @@ steps:
       -backend-config="prefix=replicating-databases-bigquery"
     dir: replicating-databases-bigquery/terraform
   
-   - id: 'replicating-databases-bigquery tf apply'
+  - id: 'replicating-databases-bigquery tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args: 
     - apply
