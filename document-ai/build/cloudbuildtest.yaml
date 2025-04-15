@@ -13,6 +13,77 @@
 # limitations under the License.
 
 steps:
+  
+  - name: 'text-classification gcr.io/cloud-builders/gcloud'
+  entrypoint: 'gcloud'
+  args: ['builds', 'submit', 'code/', '--pack', 'image=us-central1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/text-classification']
+
+- id: 'terraform init'
+  name: 'hashicorp/terraform:1.0.0'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=text-classification-tf-state" \
+    -backend-config="prefix=text-classification"
+  dir: text-classification/infra   
+
+- id: 'text-classification tf apply'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - apply
+  - -auto-approve
+  dir: text-classification/infra
+
+  - id: 'tf destroy'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: text-classification/infra
+  
+  - id: 'replicating-databases-bigquery tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      terraform init \
+      -backend-config="bucket=replicating-databases-bigquery-tf-state" \
+      -backend-config="prefix=replicating-databases-bigquery"
+    dir: replicating-databases-bigquery/terraform
+  
+   - id: 'replicating-databases-bigquery tf apply'
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - apply
+    - -auto-approve
+    dir: replicating-databases-bigquery/terraform
+  
+  - id: 'replicating-databases-bigquery upload data'
+    name: 'gcr.io/cloud-builders/gcloud-slim'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - |
+      export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:replicating-databases-bigquery')
+      export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
+      gsutil mb gs://$PROJECT_ID-sqlbackup
+      gsutil cp schema.sql gs://$PROJECT_ID-sqlbackup
+      gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://replicating-databases-bigquery-sqlbackup
+      gcloud sql import sql $$DATABASE_INSTANCE gs:// replicating-databases-bigquery-sqlbackup/schema.sql -q
+      gsutil rm gs:// replicating-databases-bigquery-sqlbackup/schema.sql
+      gsutil rb gs:// replicating-databases-bigquery-sqlbackup
+    dir: replicating-databases-bigquery/sql
+  - id: 'replicating-databases-bigquery tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - destroy
+    - -auto-approve
+    dir: replicating-databases-bigquery/terraform
+
+
   - id: 'private-cloud-data-fusion tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
