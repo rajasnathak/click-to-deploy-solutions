@@ -32,7 +32,7 @@ steps:
     - -auto-approve
     dir: text-classification/infra
   
-  - id: 'tf destroy'
+  - id: 'text-classification tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args: 
     - destroy
