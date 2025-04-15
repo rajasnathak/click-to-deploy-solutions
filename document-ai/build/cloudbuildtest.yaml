@@ -13,31 +13,6 @@
 # limitations under the License.
 
 steps:
-  
-  - id: 'terraform init'
-    name: 'hashicorp/terraform:1.0.0'
-    entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=text-classification-tf-state" \
-      -backend-config="prefix=text-classification"
-    dir: text-classification/infra   
-  
-  - id: 'text-classification tf apply'
-    name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - apply
-    - -auto-approve
-    dir: text-classification/infra
-  
-  - id: 'text-classification tf destroy'
-    name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - destroy
-    - -auto-approve
-    dir: text-classification/infra
     
   - id: 'replicating-databases-bigquery tf init'
     name: 'hashicorp/terraform:1.0.0'
