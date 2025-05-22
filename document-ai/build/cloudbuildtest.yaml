@@ -569,7 +569,7 @@ substitutions:
 
 options:
   dynamic_substitutions: true
-  defaultEnv:
+  env:
     - TF_VAR_project_id=hero-package-testing
     - TF_VAR_ingest_api_tag=$BUILD_ID
     - TF_VAR_project_number=397827630971
