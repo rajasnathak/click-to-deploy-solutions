@@ -58,30 +58,30 @@ steps:
     entrypoint: 'gcloud'
     args: ['builds', 'submit', 'code/', '--pack', 'image=us-central1-docker.pkg.dev/hero-package-testing/cloud-run-source-deploy/text-classification']
 
-  - id: 'text classification terraform init'
-    name: 'hashicorp/terraform:1.0.0'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        terraform init \
-          -backend-config="bucket=text-classification-tf-state" \
-          -backend-config="prefix=text-classification"
-    dir: text-classification/infra
+  #- id: 'text classification terraform init'
+   # name: 'hashicorp/terraform:1.0.0'
+   # entrypoint: 'sh'
+   # args:
+   #   - '-c'
+   #   - |
+   #     terraform init \
+   #       -backend-config="bucket=text-classification-tf-state" \
+   #       -backend-config="prefix=text-classification"
+   # dir: text-classification/infra
 
-  - id: 'text classification tf apply'
-    name: 'hashicorp/terraform:1.0.0'
-    args:
-      - apply
-      - -auto-approve
-    dir: text-classification/infra
+#  - id: 'text classification tf apply'
+ #   name: 'hashicorp/terraform:1.0.0'
+  #  args:
+   #   - apply
+    #  - -auto-approve
+    #dir: text-classification/infra
 
-  - id: 'tf destroy' # For text-classification
-    name: 'hashicorp/terraform:1.0.0'
-    args:
-      - destroy
-      - -auto-approve
-    dir: text-classification/infra
+ # - id: 'tf destroy' # For text-classification
+ #   name: 'hashicorp/terraform:1.0.0'
+ #   args:
+ #     - destroy
+ #     - -auto-approve
+ #   dir: text-classification/infra
 
   # Container steps
   - name: 'streaming data analytics gcr.io/cloud-builders/docker build' # Clarified name slightly
