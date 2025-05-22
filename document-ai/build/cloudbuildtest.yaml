@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#  https://www.apache.org/licenses/LICENSE-2.0
+# https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,275 +13,281 @@
 # limitations under the License.
 
 steps:
-  - id: 'three-tier-app-gcetf init'
+  - id: 'three-tier-app-gce tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=three-tier-app-gce-tf-state" \
-      -backend-config="prefix=three-tier-app-gce"
-    dir: three-tier-app-gce/infra   
-  
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=three-tier-app-gce-tf-state" \
+          -backend-config="prefix=three-tier-app-gce"
+    dir: three-tier-app-gce/infra
+
   - id: 'three-tier-app-gce tf apply'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - apply
-    - -auto-approve
+    args:
+      - apply
+      - -auto-approve
     dir: three-tier-app-gce/infra
-  
+
   - id: 'three-tier-app-gce upload data'
     name: 'gcr.io/cloud-builders/gcloud-slim'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - |
-      export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:three-tier-app-gce')
-      export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
-      gsutil mb gs://three-tier-app-gce-sqldata
-      gsutil cp schema.sql gs://three-tier-app-gce-sqldata
-      gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://three-tier-app-gce-sqldata
-      gcloud sql import sql $$DATABASE_INSTANCE gs://three-tier-app-gce-sqldata/schema.sql -q
-      gsutil rm gs://three-tier-app-gce-sqldata/schema.sql
-      gsutil rb gs://three-tier-app-gce-sqldata
+    args:
+      - '-c'
+      - |
+        export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:three-tier-app-gce')
+        export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
+        gsutil mb gs://three-tier-app-gce-sqldata
+        gsutil cp schema.sql gs://three-tier-app-gce-sqldata
+        gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://three-tier-app-gce-sqldata
+        gcloud sql import sql $$DATABASE_INSTANCE gs://three-tier-app-gce-sqldata/schema.sql -q
+        gsutil rm gs://three-tier-app-gce-sqldata/schema.sql
+        gsutil rb gs://three-tier-app-gce-sqldata
     dir: three-tier-app-gce/sql
+
   - id: 'three-tier-app-gce tf destroy'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - destroy
-    - -auto-approve
+    args:
+      - destroy
+      - -auto-approve
     dir: three-tier-app-gce/infra
-  
-  
-  
-  
+
   - name: 'text classification gcr.io/cloud-builders/gcloud'
     entrypoint: 'gcloud'
     args: ['builds', 'submit', 'code/', '--pack', 'image=us-central1-docker.pkg.dev/hero-package-testing/cloud-run-source-deploy/text-classification']
-  
+
   - id: 'text classification terraform init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=text-classification-tf-state" \
-      -backend-config="prefix=text-classification"
-    dir: text-classification/infra   
-  
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=text-classification-tf-state" \
+          -backend-config="prefix=text-classification"
+    dir: text-classification/infra
+
   - id: 'text classification tf apply'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - apply
-    - -auto-approve
+    args:
+      - apply
+      - -auto-approve
     dir: text-classification/infra
+
   - id: 'tf destroy'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - destroy
-    - -auto-approve
+    args:
+      - destroy
+      - -auto-approve
     dir: text-classification/infra
-  
-  
-    
+
   # Container steps
   - name: 'streaming data analytics gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-t'
-      - '${_IMAGE_NAME}'
+      - '$_IMAGE_NAME' # Corrected from '$'
       - '.'
     dir: streaming-data-to-analytics/code
+
   - name: 'streaming data analytics gcr.io/cloud-builders/docker'
-    args: 
-    - 'push'
-    - '${_IMAGE_NAME}'
+    args:
+      - 'push'
+      - '$_IMAGE_NAME' # Corrected from '$'
     dir: streaming-data-to-analytics/code
-    # Terraform steps
+
+  # Terraform steps
   - id: 'streaming data analytics tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=streaming-data-to-analytics-tf-state" \
-      -backend-config="prefix=streaming-data"
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=streaming-data-to-analytics-tf-state" \
+          -backend-config="prefix=streaming-data"
     dir: terraform
+
   - id: 'streaming data analytics tf apply'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - apply
-    - -auto-approve
-    dir: streaming-data-to-analytics/terraform
-  
-  - id: 'streaming data analytics tf destroy'
-    name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - destroy
-    - -auto-approve
+    args:
+      - apply
+      - -auto-approve
     dir: streaming-data-to-analytics/terraform
 
-    
+  - id: 'streaming data analytics tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args:
+      - destroy
+      - -auto-approve
+    dir: streaming-data-to-analytics/terraform
+
   - id: 'replicating-databases-bigquery tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=replicating-databases-bigquery-tf-state" \
-      -backend-config="prefix=replicating-databases-bigquery"
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=replicating-databases-bigquery-tf-state" \
+          -backend-config="prefix=replicating-databases-bigquery"
     dir: replicating-databases-bigquery/terraform
-  
+
   - id: 'replicating-databases-bigquery tf apply'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - apply
-    - -auto-approve
+    args:
+      - apply
+      - -auto-approve
     dir: replicating-databases-bigquery/terraform
-  
+
   - id: 'replicating-databases-bigquery upload data'
     name: 'gcr.io/cloud-builders/gcloud-slim'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - |
-      export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:replicating-databases-bigquery')
-      export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
-      gsutil mb gs://$PROJECT_ID-sqlbackup
-      gsutil cp schema.sql gs://$PROJECT_ID-sqlbackup
-      gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sqlbackup
-      gcloud sql import sql $$DATABASE_INSTANCE gs://$PROJECT_ID-sqlbackup/schema.sql -q
-      gsutil rm gs://$PROJECT_ID-sqlbackup/schema.sql
-      gsutil rb gs://$PROJECT_ID-sqlbackup
+    args:
+      - '-c'
+      - |
+        export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:replicating-databases-bigquery')
+        export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
+        gsutil mb gs://$PROJECT_ID-sqlbackup
+        gsutil cp schema.sql gs://$PROJECT_ID-sqlbackup
+        gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sqlbackup
+        gcloud sql import sql $$DATABASE_INSTANCE gs://$PROJECT_ID-sqlbackup/schema.sql -q
+        gsutil rm gs://$PROJECT_ID-sqlbackup/schema.sql
+        gsutil rb gs://$PROJECT_ID-sqlbackup
     dir: replicating-databases-bigquery/sql
+
   - id: 'replicating-databases-bigquery tf destroy'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - destroy
-    - -auto-approve
+    args:
+      - destroy
+      - -auto-approve
     dir: replicating-databases-bigquery/terraform
-
 
   - id: 'private-cloud-data-fusion tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=private-cloud-data-fusion-tf-state" \
-      -backend-config="prefix=private-cloud-data-fusion"
-    dir: private-cloud-data-fusion/terraform   
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=private-cloud-data-fusion-tf-state" \
+          -backend-config="prefix=private-cloud-data-fusion"
+    dir: private-cloud-data-fusion/terraform
+
   - id: 'private-cloud-data-fusion tf apply'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - apply
-    - -auto-approve
+    args:
+      - apply
+      - -auto-approve
     dir: private-cloud-data-fusion/terraform
+
   - id: 'private-cloud-data-fusion tf destroy'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - destroy
-    - -auto-approve 
+    args:
+      - destroy
+      - -auto-approve
     dir: private-cloud-data-fusion/terraform
-  
 
-  
   - id: 'object-localization zip code'
     name: 'ubuntu'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      apt-get update; apt-get install zip -y
-      zip /workspace/function-source.zip main.py requirements.txt
+    args:
+      - '-c'
+      - |
+        apt-get update; apt-get install zip -y
+        zip /workspace/function-source.zip main.py requirements.txt
     dir: object-localization/code
+
   - id: 'object-localization tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=object-localization-tf-state" \
-      -backend-config="prefix=object-localization"
-    dir: object-localization/terraform   
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=object-localization-tf-state" \
+          -backend-config="prefix=object-localization"
+    dir: object-localization/terraform
+
   - id: 'object-localization tf apply'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - apply
-    - -auto-approve
+    args:
+      - apply
+      - -auto-approve
     dir: object-localization/terraform
+
   - id: 'object-localization tf destroy'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - destroy
-    - -auto-approve
+    args:
+      - destroy
+      - -auto-approve
     dir: object-localization/terraform
 
-
-  
   - id: 'nlp zip code'
     name: 'ubuntu'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      apt-get update; apt-get install zip -y
-      zip /workspace/function-source.zip main.py requirements.txt
+    args:
+      - '-c'
+      - |
+        apt-get update; apt-get install zip -y
+        zip /workspace/function-source.zip main.py requirements.txt
     dir: nlp-sentiment-analysis/code
+
   - id: 'nlp tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=nlp-sentiment-analysis-tf-state" \
-      -backend-config="prefix=document-ai"
-    dir: nlp-sentiment-analysis/infra   
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=nlp-sentiment-analysis-tf-state" \
+          -backend-config="prefix=document-ai"
+    dir: nlp-sentiment-analysis/infra
+
   - id: 'nlp tf apply'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - apply
-    - -auto-approve
+    args:
+      - apply
+      - -auto-approve
     dir: nlp-sentiment-analysis/infra
 
   - id: 'nlp tf destroy'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
-    - destroy
-    - -auto-approve
+    args:
+      - destroy
+      - -auto-approve
     dir: nlp-sentiment-analysis/infra
-  
+
   - id: 'GKE autopilot hpa tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
-    args: 
-    - '-c'
-    - | 
-      terraform init \
-      -backend-config="bucket=gke-autopilot-hpa-tf-state" \
-      -backend-config="prefix=gke-autopilot-hpa"
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=gke-autopilot-hpa-tf-state" \
+          -backend-config="prefix=gke-autopilot-hpa"
     dir: 'gke-autopilot-hpa/infra'
+
   - id: 'GKE autopilot hpa tf apply'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
+    args:
       - apply
       - -auto-approve
     dir: 'gke-autopilot-hpa/infra'
+
   - id: k8s create namespaces
     name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'namespaces.yaml']
     dir: 'gke-autopilot-hpa/build'
+
   - id: k8s deploy hello-app-example
     name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'hello-app-example.yaml', '-n', 'hello-app-example']
     dir: gke-autopilot-hpa/build
+
   - id: k8s deploy hpa-example
     name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'hpa-example.yaml', '-n', 'hpa-example']
@@ -291,13 +297,15 @@ steps:
     name: 'gcr.io/cloud-builders/kubectl'
     args: ['delete', '-f', 'hello-app-example.yaml', '-n', 'hello-app-example']
     dir: gke-autopilot-hpa/build
+
   - id: k8s delete hpa-example
     name: 'gcr.io/cloud-builders/kubectl'
     args: ['delete', '-f', 'hpa-example.yaml', '-n', 'hpa-example']
     dir: gke-autopilot-hpa/build
+
   - id: 'tf destroy'
     name: 'hashicorp/terraform:1.0.0'
-    args: 
+    args:
       - destroy
       - -auto-approve
     dir: gke-autopilot-hpa/infra
@@ -312,7 +320,7 @@ steps:
           -backend-config="bucket=ecommerce-web-hosting-tf-state" \
           -backend-config="prefix=ecommerce-web-hosting"
     dir: 'ecommerce-webhosting/infra'
-  
+
   - id: 'ecommerce-webhosting tf apply'
     name: 'hashicorp/terraform:1.0.0'
     args:
@@ -327,7 +335,7 @@ steps:
       - '-c'
       - |
         gsutil rsync -r ecommerce-webhosting/images gs://ecommerce-hero-package-testing/assets/images
-  
+
   - id: 'ecommerce-webhosting tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args:
@@ -395,7 +403,7 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'document-ai/infra'
-  
+
   - id: 'sql-ha tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
@@ -420,7 +428,7 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'cloudsql-ha-dr/infra'
-  
+
   - id: 'event DA zip code'
     name: 'ubuntu:bionic'
     entrypoint: 'sh'
@@ -455,7 +463,7 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'data-analytics-platform-event-driven/infra'
-  
+
   - id: 'Scheduled DA tf init'
     name: 'hashicorp/terraform:1.3.9'
     entrypoint: 'sh'
@@ -480,7 +488,6 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'data-analytics-platform-scheduled/infra'
-  
 
   - id: 'gcs to bq tf init'
     name: 'hashicorp/terraform:1.4.4'
@@ -507,7 +514,7 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'gcs-to-bq-with-least-privileges/infra'
-  
+
   - id: 'composer tf init'
     name: 'hashicorp/terraform:1.6'
     entrypoint: 'sh'
@@ -548,31 +555,30 @@ steps:
         export COMPOSER_BUCKET=$(gcloud composer environments describe composer-af2 --location $$REGION --format='value(config.dagGcsPrefix)')
         gsutil cp * $$COMPOSER_BUCKET
     dir: 'cloud-composer-etl/dags'
-  
+
   - id: 'composer tf destroy'
     name: 'hashicorp/terraform:1.6'
     args:
       - 'destroy'
       - '-auto-approve'
     dir: 'cloud-composer-etl/infra'
-substitutions:
-    _IMAGE_NAME: us-central1-docker.pkg.dev/${PROJECT_ID}/docker-repo/gcp-ingest-api:${BUILD_ID}
-options:
-dynamic_substitutions: true
-images:
-  - ${_IMAGE_NAME}
-  logging: CLOUD_LOGGING_ONLY
-  env:
-    - TF_VAR_project_id=hero-package-testing
-    - TF_VAR_ingest_api_tag=$BUILD_ID
-    - TF_VAR_project_number=397827630971
-    - REGION=us-east1
-    - 'CLOUDSDK_COMPUTE_REGION=southamerica-east1'
-    - 'CLOUDSDK_CONTAINER_CLUSTER=gke-autopilot-sandbox'
 
+substitutions:
+  _IMAGE_NAME: us-central1-docker.pkg.dev/$/docker-repo/gcp-ingest-api:$ # Assuming $ is PROJECT_ID
+options:
+  dynamic_substitutions: true
+images:
+  - '$_IMAGE_NAME' # Corrected from '$' to use the substituted image name
+logging: CLOUD_LOGGING_ONLY
+env:
+  - TF_VAR_project_id=hero-package-testing
+  - TF_VAR_ingest_api_tag=$BUILD_ID
+  - TF_VAR_project_number=397827630971
+  - REGION=us-east1
+  - CLOUDSDK_COMPUTE_REGION=southamerica-east1
+  - CLOUDSDK_CONTAINER_CLUSTER=gke-autopilot-sandbox
 tags:
   - terraform
   - document-ai
   - apply
-
 timeout: 3600s
