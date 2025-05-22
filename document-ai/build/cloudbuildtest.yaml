@@ -13,6 +13,118 @@
 # limitations under the License.
 
 steps:
+- id: 'three-tier-app-gcetf init'
+  name: 'hashicorp/terraform:1.0.0'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=three-tier-app-gce-tf-state" \
+    -backend-config="prefix=three-tier-app-gce"
+  dir: three-tier-app-gce/infra   
+
+- id: 'three-tier-app-gce tf apply'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - apply
+  - -auto-approve
+  dir: three-tier-app-gce/infra
+
+- id: 'three-tier-app-gce upload data'
+  name: 'gcr.io/cloud-builders/gcloud-slim'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - |
+    export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:three-tier-app-gce')
+    export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
+    gsutil mb gs://three-tier-app-gce-sqldata
+    gsutil cp schema.sql gs://three-tier-app-gce-sqldata
+    gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://three-tier-app-gce-sqldata
+    gcloud sql import sql $$DATABASE_INSTANCE gs://three-tier-app-gce-sqldata/schema.sql -q
+    gsutil rm gs://three-tier-app-gce-sqldata/schema.sql
+    gsutil rb gs://three-tier-app-gce-sqldata
+  dir: three-tier-app-gce/sql
+- id: 'three-tier-app-gce tf destroy'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: three-tier-app-gce/infra
+
+
+
+
+- name: 'text classification gcr.io/cloud-builders/gcloud'
+  entrypoint: 'gcloud'
+  args: ['builds', 'submit', 'code/', '--pack', 'image=us-central1-docker.pkg.dev/hero-package-testing/cloud-run-source-deploy/text-classification']
+
+- id: 'text classification terraform init'
+  name: 'hashicorp/terraform:1.0.0'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=text-classification-tf-state" \
+    -backend-config="prefix=text-classification"
+  dir: text-classification/infra   
+
+- id: 'text classification tf apply'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - apply
+  - -auto-approve
+  dir: text-classification/infra
+- id: 'tf destroy'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: text-classification/infra
+
+
+  
+# Container steps
+- name: 'streaming data analytics gcr.io/cloud-builders/docker'
+  args:
+    - 'build'
+    - '-t'
+    - '${_IMAGE_NAME}'
+    - '.'
+  dir: streaming-data-to-analytics/code
+- name: 'streaming data analytics gcr.io/cloud-builders/docker'
+  args: 
+  - 'push'
+  - '${_IMAGE_NAME}'
+  dir: streaming-data-to-analytics/code
+  # Terraform steps
+- id: 'streaming data analytics tf init'
+  name: 'hashicorp/terraform:1.0.0'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - | 
+    terraform init \
+    -backend-config="bucket=streaming-data-to-analytics-tf-state" \
+    -backend-config="prefix=streaming-data"
+  dir: terraform
+- id: 'streaming data analytics tf apply'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - apply
+  - -auto-approve
+  dir: streaming-data-to-analytics/terraform
+substitutions:
+  _IMAGE_NAME: us-central1-docker.pkg.dev/${PROJECT_ID}/docker-repo/gcp-ingest-api:${BUILD_ID}
+- id: 'streaming data analytics tf destroy'
+  name: 'hashicorp/terraform:1.0.0'
+  args: 
+  - destroy
+  - -auto-approve
+  dir: streaming-data-to-analytics/terraform
+
     
   - id: 'replicating-databases-bigquery tf init'
     name: 'hashicorp/terraform:1.0.0'
@@ -446,9 +558,13 @@ steps:
     dir: 'cloud-composer-etl/infra'
 
 options:
+dynamic_substitutions: true
+images:
+  - ${_IMAGE_NAME}
   logging: CLOUD_LOGGING_ONLY
   env:
     - TF_VAR_project_id=hero-package-testing
+    - TF_VAR_ingest_api_tag=$BUILD_ID
     - TF_VAR_project_number=397827630971
     - REGION=us-east1
     - 'CLOUDSDK_COMPUTE_REGION=southamerica-east1'
@@ -456,7 +572,7 @@ options:
 
 tags:
   - terraform
-  - cloud-composer-etl
+  - document-ai
   - apply
 
 timeout: 3600s
