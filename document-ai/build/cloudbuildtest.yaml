@@ -576,9 +576,5 @@ options:
     - REGION=us-east1
     - 'CLOUDSDK_COMPUTE_REGION=southamerica-east1'
     - 'CLOUDSDK_CONTAINER_CLUSTER=gke-autopilot-sandbox'
-logging: CLOUD_LOGGING_ONLY
-tags:
-  - terraform
-  - document-ai
-  - apply
+  logging: CLOUD_LOGGING_ONLY
 timeout: 3600s
