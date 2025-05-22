@@ -84,45 +84,6 @@ steps:
  #   dir: text-classification/infra
 
   # Container steps
-  - name: 'streaming data analytics gcr.io/cloud-builders/docker build' # Clarified name slightly
-    args:
-      - 'build'
-      - '-t'
-      - '$_IMAGE_NAME' # Use substitution
-      - '.'
-    dir: streaming-data-to-analytics/code
-
-  - name: 'streaming data analytics gcr.io/cloud-builders/docker push' # Clarified name slightly
-    args:
-      - 'push'
-      - '$_IMAGE_NAME' # Use substitution
-    dir: streaming-data-to-analytics/code
-
-  # Terraform steps
-  - id: 'streaming data analytics tf init'
-    name: 'hashicorp/terraform:1.0.0'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        terraform init \
-          -backend-config="bucket=streaming-data-to-analytics-tf-state" \
-          -backend-config="prefix=streaming-data"
-    dir: terraform # Kept as per original, though 'streaming-data-to-analytics/terraform' might be intended
-
-  - id: 'streaming data analytics tf apply'
-    name: 'hashicorp/terraform:1.0.0'
-    args:
-      - apply
-      - -auto-approve
-    dir: streaming-data-to-analytics/terraform
-
-  - id: 'streaming data analytics tf destroy'
-    name: 'hashicorp/terraform:1.0.0'
-    args:
-      - destroy
-      - -auto-approve
-    dir: streaming-data-to-analytics/terraform
 
   - id: 'replicating-databases-bigquery tf init'
     name: 'hashicorp/terraform:1.0.0'
