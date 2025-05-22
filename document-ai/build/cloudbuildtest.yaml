@@ -13,7 +13,136 @@
 # limitations under the License.
 
 steps:
-  - id: 'three-tier-app-gcetf init'
+
+  - id: 'windows-fileserver tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      terraform init \
+      -backend-config="bucket=windows-fileserver-tf-state" \
+      -backend-config="prefix=windows-file-server"
+    dir: windows-fileserver/terraform
+    
+  - id: 'windows-fileserver tf apply'
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - apply
+    - -auto-approve
+    dir: windows-fileserver/terraform
+    
+  - id: 'windows-fileserver tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - destroy
+    - -auto-approve
+    dir: windows-fileserver/terraform
+
+
+  - id: 'wordpress-on-cloudrun tf init'
+    name: 'hashicorp/terraform'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      terraform init \
+      -backend-config="bucket=wordpress-on-cloudrun-tf" \
+      -backend-config="prefix=wordpress-on-cloudrun"
+    dir: wordpress-on-cloudrun/infra
+  - id: 'wordpress-on-cloudrun tf apply'
+    name: 'hashicorp/terraform'
+    args: 
+    - apply
+    - -auto-approve
+    dir: wordpress-on-cloudrun/infra
+  - id: 'wordpress-on-cloudrun tf destroy'
+    name: 'hashicorp/terraform'
+    args: 
+    - destroy
+    - -auto-approve
+    dir: wordpress-on-cloudrun/infra
+
+  
+  - id: 'three-tier-gke tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      terraform init \
+      -backend-config="bucket=three-tier-gke-tf-state" \
+      -backend-config="prefix=three-tier"
+    dir: infra
+  
+  - id: 'three-tier-gke tf apply'
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - apply
+    - -auto-approve
+    dir: three-tier-gke/infra
+    
+  
+  - id: 'three-tier-gke upload data'
+    name: 'gcr.io/cloud-builders/gcloud-slim'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - |
+      export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.solution:three-tier-gke')
+      export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
+      gsutil mb gs://three-tier-gke-sqldata
+      gsutil cp schema.sql gs://three-tier-gke-sqldata
+      gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://three-tier-gke-sqldata
+      gcloud sql import sql $$DATABASE_INSTANCE gs://three-tier-gke-sqldata/schema.sql -q
+      gsutil rm gs://three-tier-gke-sqldata/schema.sql
+      gsutil rb gs://three-tier-gke-sqldata
+    dir: three-tier-gke/build
+  
+  - id: k8s create namespaces
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'namespaces.yaml']
+    dir: three-tier-gke/build
+  
+  - id: k8s deploy todo-backend-example
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'todo-backend-example.yaml', '-n', 'back-end']
+    dir: three-tier-gke/build
+  
+  - id: k8s deploy todo-front-example
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'todo-front-example.yaml', '-n', 'front-end']
+    dir: three-tier-gke/build
+  
+  - id: k8s delete todo-backend-example
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['delete', '-f', 'todo-backend-example.yaml', '-n', 'back-end']
+    dir: three-tier-gke/build
+  - id: k8s delete todo-front-example
+    name: 'gcr.io/cloud-builders/kubectl'
+    args: ['delete', '-f', 'todo-front-example.yaml', '-n', 'front-end']
+    dir: three-tier-gke/build
+  - id: 'tf init'
+    name: 'hashicorp/terraform:1.0.0'
+    entrypoint: 'sh'
+    args: 
+    - '-c'
+    - | 
+      terraform init \
+      -backend-config="bucket=$PROJECT_ID-tf-state" \
+      -backend-config="prefix=three-tier"
+    dir: three-tier-gke/infra
+  
+  - id: 'three-tier-gke tf destroy'
+    name: 'hashicorp/terraform:1.0.0'
+    args: 
+    - destroy
+    - -auto-approve
+    dir: three-tier-gke/infra
+
+
+
+  - id: 'three-tier-app-gce tf init'
     name: 'hashicorp/terraform:1.0.0'
     entrypoint: 'sh'
     args:
