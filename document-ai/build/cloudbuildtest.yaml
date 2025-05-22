@@ -75,7 +75,7 @@ steps:
     name: 'hashicorp/terraform:1.0.0'
     args: 
     - destroy
-    - -auto-approve
+    - -auto-approve 
     dir: private-cloud-data-fusion/terraform
   
 
