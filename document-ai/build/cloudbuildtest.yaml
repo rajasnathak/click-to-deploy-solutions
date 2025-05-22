@@ -54,9 +54,9 @@ steps:
       - -auto-approve
     dir: three-tier-app-gce/infra
 
-  - name: 'text classification gcr.io/cloud-builders/gcloud'
-    entrypoint: 'gcloud'
-    args: ['builds', 'submit', 'code/', '--pack', 'image=us-central1-docker.pkg.dev/hero-package-testing/cloud-run-source-deploy/text-classification']
+  #- name: 'text classification gcr.io/cloud-builders/gcloud'
+  #  entrypoint: 'gcloud'
+  #  args: ['builds', 'submit', 'code/', '--pack', 'image=us-central1-docker.pkg.dev/hero-package-testing/cloud-run-source-deploy/text-classification']
 
   #- id: 'text classification terraform init'
    # name: 'hashicorp/terraform:1.0.0'
