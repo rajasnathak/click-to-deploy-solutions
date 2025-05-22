@@ -116,8 +116,7 @@ steps:
     - apply
     - -auto-approve
     dir: streaming-data-to-analytics/terraform
-  substitutions:
-    _IMAGE_NAME: us-central1-docker.pkg.dev/${PROJECT_ID}/docker-repo/gcp-ingest-api:${BUILD_ID}
+  
   - id: 'streaming data analytics tf destroy'
     name: 'hashicorp/terraform:1.0.0'
     args: 
@@ -556,7 +555,8 @@ steps:
       - 'destroy'
       - '-auto-approve'
     dir: 'cloud-composer-etl/infra'
-
+substitutions:
+    _IMAGE_NAME: us-central1-docker.pkg.dev/${PROJECT_ID}/docker-repo/gcp-ingest-api:${BUILD_ID}
 options:
 dynamic_substitutions: true
 images:
